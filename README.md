@@ -129,8 +129,8 @@ Settings > Community Nodes > Install, enter `@bluskytech/n8n-nodes-smartsheet`.
    then install it from inside the container:
 
    ```bash
-   docker compose cp bluskytech-n8n-nodes-smartsheet-1.0.1.tgz n8n:/home/node/.n8n/
-   docker compose exec n8n sh -c 'mkdir -p ~/.n8n/nodes && cd ~/.n8n/nodes && (test -f package.json || npm init -y >/dev/null) && npm install ~/.n8n/bluskytech-n8n-nodes-smartsheet-1.0.1.tgz --omit=dev --omit=peer'
+   docker compose cp bluskytech-n8n-nodes-smartsheet-1.0.2.tgz n8n:/home/node/.n8n/
+   docker compose exec n8n sh -c 'mkdir -p ~/.n8n/nodes && cd ~/.n8n/nodes && (test -f package.json || npm init -y >/dev/null) && npm install ~/.n8n/bluskytech-n8n-nodes-smartsheet-1.0.2.tgz --omit=dev --omit=peer'
    docker compose restart n8n
    ```
 
@@ -151,8 +151,8 @@ Replace the user, host, data path and container name with your own:
 
 ```bash
 npm run pack
-ssh user@docker-host 'cat > /path/to/n8n-data/bluskytech-n8n-nodes-smartsheet-1.0.1.tgz' < bluskytech-n8n-nodes-smartsheet-1.0.1.tgz
-ssh user@docker-host 'docker exec n8n sh -c "cd /home/node/.n8n/nodes && npm install /home/node/.n8n/bluskytech-n8n-nodes-smartsheet-1.0.1.tgz --omit=dev --omit=peer" && docker restart n8n'
+ssh user@docker-host 'cat > /path/to/n8n-data/bluskytech-n8n-nodes-smartsheet-1.0.2.tgz' < bluskytech-n8n-nodes-smartsheet-1.0.2.tgz
+ssh user@docker-host 'docker exec n8n sh -c "cd /home/node/.n8n/nodes && npm install /home/node/.n8n/bluskytech-n8n-nodes-smartsheet-1.0.2.tgz --omit=dev --omit=peer" && docker restart n8n'
 ```
 
 The path inside the container is `/home/node/.n8n` on the official image, or `/root/.n8n` if the

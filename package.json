@@ -1,6 +1,6 @@
 {
 	"name": "@bluskytech/n8n-nodes-smartsheet",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "n8n community node for Smartsheet: a webhook trigger (new/updated/deleted rows, cells, comments, attachments) and actions for sheets, rows, columns, attachments, comments, folders, workspaces, reports and search",
 	"license": "MIT",
 	"homepage": "https://github.com/bluskytech/n8n-nodes-smartsheet#readme",
