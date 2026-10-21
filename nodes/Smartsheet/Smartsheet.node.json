@@ -1,0 +1,12 @@
+{
+	"node": "@bluskytech/n8n-nodes-smartsheet.smartsheet",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Productivity", "Data & Storage"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://github.com/bluskytech/n8n-nodes-smartsheet#credentials" }
+		],
+		"primaryDocumentation": [{ "url": "https://github.com/bluskytech/n8n-nodes-smartsheet" }]
+	}
+}

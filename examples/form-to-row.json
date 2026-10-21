@@ -1,0 +1,73 @@
+{
+	"name": "Smartsheet: form submission to row",
+	"nodes": [
+		{
+			"parameters": {
+				"formTitle": "Contact request",
+				"formFields": {
+					"values": [
+						{
+							"fieldLabel": "Name",
+							"requiredField": true
+						},
+						{
+							"fieldLabel": "Email",
+							"fieldType": "email",
+							"requiredField": true
+						},
+						{
+							"fieldLabel": "Notes",
+							"fieldType": "textarea"
+						}
+					]
+				},
+				"options": {}
+			},
+			"name": "Form",
+			"type": "n8n-nodes-base.formTrigger",
+			"typeVersion": 2.2,
+			"position": [0, 0],
+			"webhookId": "replace-with-your-own"
+		},
+		{
+			"parameters": {
+				"resource": "row",
+				"operation": "create",
+				"sheetId": {
+					"__rl": true,
+					"mode": "list",
+					"value": ""
+				},
+				"columns": {
+					"mappingMode": "autoMapInputData",
+					"value": null,
+					"matchingColumns": [],
+					"schema": []
+				},
+				"options": {
+					"position": "toBottom"
+				}
+			},
+			"name": "Add row",
+			"type": "@bluskytech/n8n-nodes-smartsheet.smartsheet",
+			"typeVersion": 1,
+			"position": [300, 0]
+		}
+	],
+	"connections": {
+		"Form": {
+			"main": [
+				[
+					{
+						"node": "Add row",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	}
+}

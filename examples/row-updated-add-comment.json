@@ -1,0 +1,57 @@
+{
+	"name": "Smartsheet: comment on changed rows",
+	"nodes": [
+		{
+			"parameters": {
+				"sheetId": {
+					"__rl": true,
+					"mode": "list",
+					"value": ""
+				},
+				"events": ["row.updated"],
+				"options": {
+					"ignoreOwn": true
+				}
+			},
+			"name": "Smartsheet Trigger",
+			"type": "@bluskytech/n8n-nodes-smartsheet.smartsheetTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "comment",
+				"operation": "create",
+				"sheetId": {
+					"__rl": true,
+					"mode": "list",
+					"value": ""
+				},
+				"attachTo": "row",
+				"rowId": "={{ $json.rowId }}",
+				"text": "=Changed columns: {{ $json.changedColumns.join(', ') }} (at {{ $json.timestamp }})",
+				"options": {}
+			},
+			"name": "Add comment",
+			"type": "@bluskytech/n8n-nodes-smartsheet.smartsheet",
+			"typeVersion": 1,
+			"position": [300, 0]
+		}
+	],
+	"connections": {
+		"Smartsheet Trigger": {
+			"main": [
+				[
+					{
+						"node": "Add comment",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	}
+}

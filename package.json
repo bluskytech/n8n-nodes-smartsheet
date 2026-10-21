@@ -1,0 +1,65 @@
+{
+	"name": "@bluskytech/n8n-nodes-smartsheet",
+	"version": "1.0.1",
+	"description": "n8n community node for Smartsheet: a webhook trigger (new/updated/deleted rows, cells, comments, attachments) and actions for sheets, rows, columns, attachments, comments, folders, workspaces, reports and search",
+	"license": "MIT",
+	"homepage": "https://github.com/bluskytech/n8n-nodes-smartsheet#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"smartsheet"
+	],
+	"author": {
+		"name": "bluskytech",
+		"email": "345574443+bluskytech@users.noreply.github.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bluskytech/n8n-nodes-smartsheet.git"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"typecheck": "tsc --noEmit",
+		"pack": "npm run build && npm pack",
+		"prepublishOnly": "n8n-node prerelease",
+		"release": "n8n-node release"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/SmartsheetApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Smartsheet/Smartsheet.node.js",
+			"dist/nodes/SmartsheetTrigger/SmartsheetTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.52.6",
+		"eslint": "9.39.4",
+		"n8n-workflow": "^2.16.0",
+		"prettier": "3.8.3",
+		"typescript": "5.9.3",
+		"release-it": "20.2.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"bugs": {
+		"url": "https://github.com/bluskytech/n8n-nodes-smartsheet/issues"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}

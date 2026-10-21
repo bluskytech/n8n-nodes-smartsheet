@@ -1,0 +1,125 @@
+# Publishes this n8n community node package to npm on every version tag push.
+#
+# Starting May 1 2026, n8n requires all community nodes to be published via
+# GitHub Actions with npm provenance statements. This workflow satisfies that
+# requirement. Provenance lets anyone cryptographically verify that a package
+# was built by this exact workflow, from this exact repository and commit.
+#
+# ─── PREREQUISITES ─────────────────────────────────────────────────────────────
+#
+# @n8n/node-cli ≥ 0.23.0 is required. Earlier versions do not support the
+# provenance flag passed by `npm run release` in CI, and the publish step will
+# fail. Check the version installed in this project with:
+#
+#   npm list @n8n/node-cli
+#
+# To upgrade:
+#
+#   npm install --save-dev @n8n/node-cli@latest
+#
+# ─── ONE-TIME SETUP ────────────────────────────────────────────────────────────
+#
+# Option A — OIDC Trusted Publishing (recommended, no long-lived secrets):
+#   1. Log in to npmjs.com and open your package's settings.
+#   2. Under "Publish access" → "Trusted Publishers", click "Add a publisher".
+#   3. Select GitHub Actions and fill in:
+#        Repository owner: <your-github-username-or-org>
+#        Repository name:  <your-repo-name>
+#        Workflow name:    publish.yml
+#        Environment:      (leave blank unless you use GitHub Environments)
+#   4. Leave the NPM_TOKEN secret unset in this repository. GitHub's OIDC
+#      token is used instead — no secret ever touches your repo settings.
+#
+# Option B — npm Automation Token (fallback):
+#   1. On npmjs.com: Access Tokens → Generate New Token → Granular Access Token.
+#      Scope it to this package with "Read and write" publish permission.
+#   2. In GitHub: Settings → Secrets and variables → Actions → New secret.
+#      Name it NPM_TOKEN and paste the token value.
+#
+# Both options work with --provenance. Provenance is signed by GitHub's OIDC
+# infrastructure regardless of how npm authentication is handled.
+#
+# ─── TAG CONVENTION ────────────────────────────────────────────────────────────
+#
+# This workflow triggers on tags matching "*.*.*" (e.g. 0.2.0).
+# If you prefer tags with a "v" prefix (e.g. v0.2.0), change the filter to:
+#   tags: ['v*.*.*']
+#
+# ─── RELEASE PROCESS ───────────────────────────────────────────────────────────
+#
+# Run the following command locally to start an interactive release:
+#
+#   npm run release
+#
+# This will lint, build, prompt for a version bump, update the changelog,
+# commit, tag, and push — which triggers this workflow to publish to npm.
+
+name: Publish
+
+on:
+  push:
+    tags:
+      # Matches 0.1.0, 1.2.3, 2.0.0-rc.1, etc.
+      # See "TAG CONVENTION" above if you prefer tags with a "v" prefix.
+      - '*.*.*'
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required to mint an OIDC token for npm provenance attestation.
+      id-token: write
+      # Scoped down from the default (write) for least-privilege publishing.
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check npm authentication
+        # Fails early with a clear message if NPM_TOKEN is missing or rejected.
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+            echo "NPM_TOKEN is set; publishing as: $(npm whoami)"
+          else
+            echo "NPM_TOKEN is not set; relying on npm trusted publishing (OIDC)."
+          fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Release
+        # Publishes to npm with a provenance attestation (requires id-token: write above).
+        # Lint and build run automatically as part of the release process.
+        #
+        # Option A (OIDC): leave NPM_TOKEN unset — the token step is skipped and
+        #   npm uses the OIDC exchange instead.
+        # Option B (token): set NPM_TOKEN in repo secrets — it is written to
+        #   .npmrc here before publishing.
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"; fi
+          set -o pipefail
+          npm run release 2>&1 | tee "$RUNNER_TEMP/release.log"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Report release output
+        # Surfaces the end of the release output as run annotations so the
+        # cause is visible without opening the step log.
+        if: failure()
+        run: |
+          f="$RUNNER_TEMP/release.log"
+          if [ ! -f "$f" ]; then echo "::error::release produced no output"; exit 0; fi
+          # GitHub shows at most 10 annotations per step: report error lines first, then the tail.
+          { grep -iE "npm (error|ERR!)|error|E[0-9]{3}|EOTP|ENEEDAUTH|provenance" "$f" | grep -v "npm notice" | tail -n 8; tail -n 2 "$f"; } \
+            | grep -v '^\s*$' | awk '!seen[$0]++' | while IFS= read -r line; do echo "::error::$line"; done
