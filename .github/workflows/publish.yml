@@ -118,6 +118,8 @@ jobs:
           npm run release 2>&1 | tee "$RUNNER_TEMP/release.log"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # HTTP-level logging so a failed OIDC token exchange shows its status code.
+          NPM_CONFIG_LOGLEVEL: http
 
       - name: Report release output
         # Surfaces the end of the release output as run annotations so the
@@ -127,5 +129,5 @@ jobs:
           f="$RUNNER_TEMP/release.log"
           if [ ! -f "$f" ]; then echo "::error::release produced no output"; exit 0; fi
           # GitHub shows at most 10 annotations per step: report error lines first, then the tail.
-          { grep -iE "npm (error|ERR!)|error|E[0-9]{3}|EOTP|ENEEDAUTH|provenance" "$f" | grep -v "npm notice" | tail -n 8; tail -n 2 "$f"; } \
+          { grep -iE "oidc|exchange|trusted|id.token|npm warn|http fetch [A-Z]+ [45][0-9][0-9]" "$f" | tail -n 6; grep -iE "npm (error|ERR!)|E[0-9]{3}|EOTP|ENEEDAUTH" "$f" | tail -n 3; } \
             | grep -v '^\s*$' | awk '!seen[$0]++' | while IFS= read -r line; do echo "::error::$line"; done
