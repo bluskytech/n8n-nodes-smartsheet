@@ -86,6 +86,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Ensure npm supports trusted publishing
+        # npm >= 11.5.1 is required for OIDC trusted publishing; the bundled npm may be older.
+        run: |
+          npm install -g npm@latest
+          echo "node $(node --version), npm $(npm --version)"
+
       - name: Check npm authentication
         # Fails early with a clear message if NPM_TOKEN is missing or rejected.
         run: |
